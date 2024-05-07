@@ -1,7 +1,7 @@
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println("Поехали!");
+        System.out.println("Поехали!" + System.lineSeparator());
 
 //        Создаем две задачи
         Task task1 = new Task("Завтрак", "Приготовить завтрак дома", Status.NEW);
@@ -48,7 +48,7 @@ public class Main {
         TaskManager.updateSubtask(subtask4);
 
 //        Выводим на экран обновленные задачи:
-        System.out.println("Обновляем статусы созданных задач и подзадач через обновление " + System.lineSeparator());
+        System.out.println("Обновлены статусы созданных задач и подзадач" + System.lineSeparator());
         System.out.println("Проверяем статусы задач после обновления:");
         System.out.println(TaskManager.tasks.values() + System.lineSeparator());
         System.out.println("Проверяем статусы подзадач после обновления:");
@@ -68,9 +68,9 @@ public class Main {
         System.out.println(TaskManager.tasks.values() + System.lineSeparator());
         System.out.println("После удаления эпика не должно остаться подзадач и эпика. Проверяем:");
         System.out.println("Содержимое мапы subtasks:");
-        System.out.println(TaskManager.subtasks.values() + System.lineSeparator());
+        System.out.println(TaskManager.subtasks.values());
         System.out.println("Содержимое мапы epics:");
-        System.out.println(TaskManager.epics.values() + System.lineSeparator());
+        System.out.println(TaskManager.epics.values());
     }
 
 }
