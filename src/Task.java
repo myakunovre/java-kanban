@@ -31,7 +31,7 @@ public class Task {
 
     @Override
     public final int hashCode() {
-        return Objects.hash(/*name, description, */id/*, status*/);
+        return Objects.hash(id);
     }
 
     @Override
