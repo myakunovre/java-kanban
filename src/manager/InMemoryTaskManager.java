@@ -15,12 +15,8 @@ public class InMemoryTaskManager implements TaskManager {
     private final Map<Integer, Task> tasks = new HashMap<>();
     private final Map<Integer, Epic> epics = new HashMap<>();
     private final Map<Integer, Subtask> subtasks = new HashMap<>();
-    private final HistoryManager historyManager;
+    private final HistoryManager historyManager = Managers.getDefaultHistory();
 
-
-    public InMemoryTaskManager() {
-        historyManager = Managers.getDefaultHistory();
-    }
 
     // добавил новый метод возможности получения доступа из Main к методам класса InMemoryHistoryManager
     @Override
@@ -71,21 +67,21 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getTaskById(int id) {
         Task task = tasks.get(id);
-        updateHistory(task);
+        historyManager.add(task);
         return task;
     }
 
     @Override
     public Epic getEpicById(int id) {
         Epic epic = epics.get(id);
-        updateHistory(epic);
+        historyManager.add(epic);
         return epic;
     }
 
     @Override
     public Subtask getSubtaskById(int id) {
         Subtask subtask = subtasks.get(id);
-        updateHistory(subtask);
+        historyManager.add(subtask);
         return subtask;
     }
 
@@ -211,16 +207,5 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
         return true;
-    }
-
-    private void updateHistory(Task task) {
-        List<Task> history = historyManager.getHistory();
-        Task taskCopy = new Task(task.getName(), task.getDescription(), task.getStatus());
-        taskCopy.setId(task.getId());
-        history.add(taskCopy);
-        if (history.size() <= 10) {
-            return;
-        }
-        history.removeFirst();
     }
 }
