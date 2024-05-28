@@ -11,9 +11,10 @@ public class InMemoryHistoryManager implements HistoryManager {
     // Добавление задачи в список последних просмотренных 10 задач
     @Override
     public void add(Task task) {
-        Task taskCopy = new Task(task.getName(), task.getDescription(), task.getStatus());
-        taskCopy.setId(task.getId());
-        history.add(taskCopy);
+        if (task == null) {
+            return;
+        }
+        history.add(task);
         if (history.size() <= 10) {
             return;
         }
