@@ -8,17 +8,16 @@ import tasks.Subtask;
 import tasks.Task;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static tasks.Status.*;
+import static tasks.Status.IN_PROGRESS;
+import static tasks.Status.NEW;
 
 class InMemoryTaskManagerTest {
-
     TaskManager taskManager = Managers.getDefault();
 
     @AfterEach
     void removeAllTasks() {
         taskManager.removeTasks();
         taskManager.removeEpics();
-        taskManager.getHistoryManager().getHistory().clear();
     }
 
     //    1. Проверьте, что экземпляры класса Task равны друг другу, если равен их id;
@@ -155,6 +154,7 @@ class InMemoryTaskManagerTest {
         assertEquals(0, firstId);
         assertNotEquals(firstId, generatedId, "ID не сгенерировался или не присвоился");
     }
+
     @Test
     void ShouldSetGeneratedIdInEpic() {
         Epic epic = new Epic("Epic", "Test epic", NEW);
@@ -165,6 +165,7 @@ class InMemoryTaskManagerTest {
         assertEquals(0, firstId);
         assertNotEquals(firstId, generatedId, "ID не сгенерировался или не присвоился");
     }
+
     @Test
     void ShouldSetGeneratedIdInSubtask() {
         Epic epic = new Epic("Epic", "Test epic", NEW);
@@ -179,7 +180,7 @@ class InMemoryTaskManagerTest {
     }
 
 
-//    7. Создайте тест, в котором проверяется неизменность задачи (по всем полям) при добавлении задачи в менеджер
+    //    7. Создайте тест, в котором проверяется неизменность задачи (по всем полям) при добавлении задачи в менеджер
     @Test
     void ShouldNotChangeTaskFields() {
         Task taskBeforeAdding = new Task("Task", "Test task", NEW);
@@ -246,7 +247,7 @@ class InMemoryTaskManagerTest {
         assertEquals(epicIdBeforeAdding, epicIdAfterAdding, "При добавлении подзадачи изменилось поле epicId");
     }
 
-//    9. Убедитесь, что задачи, добавляемые в HistoryManager, сохраняют предыдущую версию задачи и её данных.
+    //    9. Убедитесь, что задачи, добавляемые в HistoryManager, сохраняют предыдущую версию задачи и её данных.
     @Test
     void shouldNotChangeTaskInHistory() {
         Task task1 = new Task("Task1", "Test task1", NEW);
@@ -256,7 +257,7 @@ class InMemoryTaskManagerTest {
 
         Status statusBeforeUpdate = taskManager.getHistoryManager().getHistory().get(task1.getId() - 1).getStatus();
 
-        Task task2 = new Task("Task1", "Test task1", IN_PROGRESS);
+        Task task2 = new Task("Task2", "Test task2", IN_PROGRESS);
         task2.setId(task1.getId());
         taskManager.updateTask(task2);
 
@@ -264,4 +265,82 @@ class InMemoryTaskManagerTest {
 
         assertEquals(statusBeforeUpdate, statusAfterUpdate, "historyManager не сохраняет предыдущую историю задачи");
     }
+
+
+    // Добавляем тесты по финальному заданию спринта 6
+
+    //    10. Проверьте, что встроенный связный список версий, а также операции добавления и удаления работают корректно.
+    // 10.1. Проверяем, что только задачи не дублируются в истории и хранятся в порядке обращения к ним
+    @Test
+    void shouldAddDifferentTasksInHistoryAndNotDouble() {
+        Task task1 = new Task("Task1", "Test task1", NEW);
+        taskManager.createTask(task1);
+
+        Task task2 = new Task("Task2", "Test task2", NEW);
+        taskManager.createTask(task2);
+
+        taskManager.getTaskById(task1.getId());
+        taskManager.getTaskById(task2.getId());
+        taskManager.getTaskById(task1.getId());
+
+        int historySize = taskManager.getHistoryManager().getHistory().size();
+        assertEquals(2, historySize, "Менеджер истории работает не корректно");
+
+        String firstTaskNameInHistory = taskManager.getHistoryManager().getHistory().get(0).getName();
+        String secondTaskNameInHistory = taskManager.getHistoryManager().getHistory().get(1).getName();
+
+        assertEquals("Task2", firstTaskNameInHistory, "Порядок хранения не правильный");
+        assertEquals("Task1", secondTaskNameInHistory, "Порядок хранения не правильный");
+    }
+
+    // 10.2. Проверяем, что задачи корректно удаляются из истории
+    @Test
+    void shouldRemoveTasksInHistoryWhenRemoveTasks() {
+        Task task1 = new Task("Task1", "Test task1", NEW);
+        taskManager.createTask(task1);
+
+        Task task2 = new Task("Task2", "Test task2", NEW);
+        taskManager.createTask(task2);
+
+        taskManager.getTaskById(task1.getId());
+        taskManager.getTaskById(task2.getId());
+
+        taskManager.removeTaskById(task1.getId());
+
+        int historySize = taskManager.getHistoryManager().getHistory().size();
+        assertEquals(1, historySize, "При удалении задачи история хранения работает не корректно");
+
+        String taskNameInHistory = taskManager.getHistoryManager().getHistory().get(0).getName();
+        assertEquals("Task2", taskNameInHistory, "Удаленная задача не удалилась из истории");
+    }
+
+    // 11. Внутри эпиков не должно оставаться неактуальных id подзадач.
+    @Test
+    void ShouldRemoveSubtaskIdInEpicWhenRemoveSubtask() {
+        Epic epic = new Epic("Epic", "Test epic", NEW);
+        taskManager.createEpic(epic);
+
+        Subtask subtask = new Subtask("Subtask", "Test subtask", NEW, epic.getId());
+        taskManager.createSubtask(subtask);
+
+        int subtaskId = subtask.getId();
+        assertTrue(epic.subtasksId.contains(subtaskId), "В эпик не добавился id его сабтаски");
+
+        taskManager.removeSubtaskById(subtaskId);
+        assertFalse(epic.subtasksId.contains(subtaskId), "Из эпика не удалился id его удаленной сабтаски");
+    }
+
+    // 12. С помощью сеттеров экземпляры задач позволяют изменить любое своё поле, но это может повлиять на данные внутри
+    // менеджера. Протестируйте эти кейсы и подумайте над возможными вариантами решения проблемы.
+    @Test
+    void shouldChangeTasksInManagerBySetters() {
+        Task task1 = new Task("Task1", "Test task1", NEW);
+        taskManager.createTask(task1);
+        Status TaskStatusFirst = taskManager.getTaskById(task1.getId()).getStatus();
+        task1.setStatus(IN_PROGRESS);
+        Status TaskStatusAfterChangingBySetter = taskManager.getTaskById(task1.getId()).getStatus();
+
+        assertNotEquals(TaskStatusFirst, TaskStatusAfterChangingBySetter, "Сеттер не изменил id задачи в менеджере");
+    }
+
 }

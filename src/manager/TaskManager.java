@@ -15,7 +15,7 @@ public interface TaskManager {
 
     List<Subtask> getSubtasks();
 
-    // добавил новый метод возможности получения доступа из Main к методам класса InMemoryHistoryManager
+    // Получение доступа из Main к методам класса InMemoryHistoryManager
     HistoryManager getHistoryManager();
 
     // Удаление всех задач (для каждого типа задач)
@@ -52,7 +52,6 @@ public interface TaskManager {
     void removeEpicById(int id);
 
     void removeSubtaskById(int id);
-
 
     // Получение списка всех подзадач определённого эпика
     List<Subtask> getSubtasksForEpic(int epicId);
