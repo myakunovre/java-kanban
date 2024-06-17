@@ -20,7 +20,6 @@ class InMemoryTaskManagerTest {
         taskManager.removeEpics();
     }
 
-    //    1. Проверьте, что экземпляры класса Task равны друг другу, если равен их id;
     @Test
     void tasksAreEqualsIfTheirIdsAreEqual() {
         Task task1 = new Task("task1", "Test task1", NEW);
@@ -37,7 +36,6 @@ class InMemoryTaskManagerTest {
     }
 
 
-    //    2. Проверьте, что наследники класса Task равны друг другу, если равен их id;
     @Test
     void epicsAreEqualsIfTheirIdsAreEqual() {
         Epic epic1 = new Epic("epic1", "Test epic1", NEW);
@@ -71,26 +69,6 @@ class InMemoryTaskManagerTest {
         assertEquals(subtask1, subtask2, "Подзадачи не совпадают");
     }
 
-
-//     3. Проверьте, что объект Epic нельзя добавить в самого себя в виде подзадачи;
-
-//     По-моему, данная проверка смысла не имеет, т.к. подзадачу эпика можно добавить только через метод createSubtask()
-//     или updateSubtask(), которые принимают в качестве параметра объект Subtask. Таким образом, объект Epic не может
-//     стать подзадачей любого объекта Epic, в том числе и самого себя.
-
-
-//    4. Проверьте, что объект Subtask нельзя сделать своим же эпиком;
-
-//    По-моему, данная проверка также смысла не имеет. Объект Subtask не может быть ничьим эпиком, в том числе своим,
-//    т.к. присвоение сабтаски эпику происходит при инициализации объекта Subtask, при этом в параметре конструктора
-//    Subtask надо указать ID уже созданного эпика. Для того чтобы сабтаска сделалась своим же эпиком надо при ее
-//    инициализации в параметр epicId конструктора Subtask указать ID этой создаваемой сабтаски, а у нее еще нет ID,
-//    так как ID сабтаски генерируется и присваивается уже после ее создания в методе createSubtask(). Кроме того,
-//    данную проверку не возможно выполнить, поскольку в моей реализации ТЗ не возможно смоделировать ситуацию
-//    для данной проверки.
-
-
-    //    5. Проверьте, что InMemoryTaskManager действительно добавляет задачи разного типа и может найти их по id;
     @Test
     void ShouldAddingTaskAndFindById() {
         int tasksSizeBeforeAdding = taskManager.getTasks().size();
@@ -141,9 +119,6 @@ class InMemoryTaskManagerTest {
         assertEquals(subtask1, subtask2, "Менеджер нашел не ту задачу");
     }
 
-
-//    6. Проверьте, что задачи с заданным id и сгенерированным id не конфликтуют внутри менеджера;
-
     @Test
     void ShouldSetGeneratedIdInTask() {
         Task task = new Task("Task", "Test task", NEW);
@@ -179,8 +154,6 @@ class InMemoryTaskManagerTest {
         assertNotEquals(firstId, generatedId, "ID не сгенерировался или не присвоился");
     }
 
-
-    //    7. Создайте тест, в котором проверяется неизменность задачи (по всем полям) при добавлении задачи в менеджер
     @Test
     void ShouldNotChangeTaskFields() {
         Task taskBeforeAdding = new Task("Task", "Test task", NEW);
@@ -247,7 +220,6 @@ class InMemoryTaskManagerTest {
         assertEquals(epicIdBeforeAdding, epicIdAfterAdding, "При добавлении подзадачи изменилось поле epicId");
     }
 
-    //    9. Убедитесь, что задачи, добавляемые в HistoryManager, сохраняют предыдущую версию задачи и её данных.
     @Test
     void shouldNotChangeTaskInHistory() {
         Task task1 = new Task("Task1", "Test task1", NEW);
@@ -266,11 +238,6 @@ class InMemoryTaskManagerTest {
         assertEquals(statusBeforeUpdate, statusAfterUpdate, "historyManager не сохраняет предыдущую историю задачи");
     }
 
-
-    // Добавляем тесты по финальному заданию спринта 6
-
-    //    10. Проверьте, что встроенный связный список версий, а также операции добавления и удаления работают корректно.
-    // 10.1. Проверяем, что только задачи не дублируются в истории и хранятся в порядке обращения к ним
     @Test
     void shouldAddDifferentTasksInHistoryAndNotDouble() {
         Task task1 = new Task("Task1", "Test task1", NEW);
@@ -293,7 +260,6 @@ class InMemoryTaskManagerTest {
         assertEquals("Task1", secondTaskNameInHistory, "Порядок хранения не правильный");
     }
 
-    // 10.2. Проверяем, что задачи корректно удаляются из истории
     @Test
     void shouldRemoveTasksInHistoryWhenRemoveTasks() {
         Task task1 = new Task("Task1", "Test task1", NEW);
@@ -314,7 +280,6 @@ class InMemoryTaskManagerTest {
         assertEquals("Task2", taskNameInHistory, "Удаленная задача не удалилась из истории");
     }
 
-    // 11. Внутри эпиков не должно оставаться неактуальных id подзадач.
     @Test
     void ShouldRemoveSubtaskIdInEpicWhenRemoveSubtask() {
         Epic epic = new Epic("Epic", "Test epic", NEW);
@@ -330,8 +295,6 @@ class InMemoryTaskManagerTest {
         assertFalse(epic.subtasksId.contains(subtaskId), "Из эпика не удалился id его удаленной сабтаски");
     }
 
-    // 12. С помощью сеттеров экземпляры задач позволяют изменить любое своё поле, но это может повлиять на данные внутри
-    // менеджера. Протестируйте эти кейсы и подумайте над возможными вариантами решения проблемы.
     @Test
     void shouldChangeTasksInManagerBySetters() {
         Task task1 = new Task("Task1", "Test task1", NEW);
@@ -342,5 +305,4 @@ class InMemoryTaskManagerTest {
 
         assertNotEquals(TaskStatusFirst, TaskStatusAfterChangingBySetter, "Сеттер не изменил id задачи в менеджере");
     }
-
 }

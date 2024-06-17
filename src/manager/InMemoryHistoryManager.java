@@ -10,7 +10,6 @@ public class InMemoryHistoryManager implements HistoryManager {
     Map<Integer, Node<Task>> history = new HashMap<>();
     TaskLinkedList<Task> taskLinkedList = new TaskLinkedList<>();
 
-    // Добавление задачи в список истории
     @Override
     public void add(Task task) {
         if (task == null) {
@@ -24,13 +23,11 @@ public class InMemoryHistoryManager implements HistoryManager {
         history.put(id, taskLinkedList.last);
     }
 
-    // Получение списка истории просмотров
     @Override
     public List<Task> getHistory() {
         return taskLinkedList.getTasks();
     }
 
-    // Удаление задачи из истории
     @Override
     public void remove(int id) {
         if (!history.containsKey(id)) {

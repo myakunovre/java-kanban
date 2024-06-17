@@ -13,23 +13,19 @@ public class Main {
 
         TaskManager taskManager = Managers.getDefault();
 
-//        Создаем две задачи
         Task task1 = new Task("Завтрак", "Приготовить завтрак дома", Status.NEW);
         taskManager.createTask(task1);
         Task task2 = new Task("Обед", "Сходить в ресторан", Status.NEW);
         taskManager.createTask(task2);
 
-//        Создаем эпик
         Epic epic = new Epic("Ремонт", "Сделать ремонт в гостиной", Status.NEW);
         taskManager.createEpic(epic);
 
-//        Создаем две подзадачи эпика
         Subtask subtask1 = new Subtask("Проект", "Сделать проект", Status.NEW, epic.getId());
         taskManager.createSubtask(subtask1);
         Subtask subtask2 = new Subtask("Материалы", "Закупить материалы", Status.NEW, epic.getId());
         taskManager.createSubtask(subtask2);
 
-//        Тестируем новый функционал метода getHistory():
         System.out.println("Дергаем созданные задачи в порядке id 1...5" + System.lineSeparator());
         taskManager.getTaskById(1);
         taskManager.getTaskById(2);
@@ -51,11 +47,9 @@ public class Main {
                 + System.lineSeparator());
         printAllTasks(taskManager);
 
-//        Удаляем задачу по id
         taskManager.removeTaskById(task1.getId());
         System.out.println("Удалили задачу task1" + System.lineSeparator());
 
-//        Удаляем эпик по id
         taskManager.removeEpicById(epic.getId());
         System.out.println("Удалили эпик" + System.lineSeparator());
 
