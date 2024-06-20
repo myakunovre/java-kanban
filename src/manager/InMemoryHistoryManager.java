@@ -2,28 +2,39 @@ package manager;
 
 import tasks.Task;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private final List<Task> history = new ArrayList<>();
+    Map<Integer, Node<Task>> history = new HashMap<>();
+    TaskLinkedList<Task> taskLinkedList = new TaskLinkedList<>();
 
-    // Добавление задачи в список последних просмотренных 10 задач
     @Override
     public void add(Task task) {
         if (task == null) {
             return;
         }
-        history.add(task);
-        if (history.size() <= 10) {
-            return;
+        int id = task.getId();
+        if (history.containsKey(id)) {
+            taskLinkedList.removeNode(history.get(id));
         }
-        history.removeFirst();
+        taskLinkedList.linkLast(task);
+        history.put(id, taskLinkedList.last);
     }
 
-    // Получение списка последних просмотренных 10 задач
     @Override
     public List<Task> getHistory() {
-        return new ArrayList<>(history);
+        return taskLinkedList.getTasks();
+    }
+
+    @Override
+    public void remove(int id) {
+        if (!history.containsKey(id)) {
+            return;
+        }
+        taskLinkedList.removeNode(history.get(id));
+        history.remove(id);
     }
 }
+
