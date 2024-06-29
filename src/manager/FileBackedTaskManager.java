@@ -37,11 +37,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         FileBackedTaskManager fileBackedTaskManager1 = FileBackedTaskManager.loadFromFile(path.toFile());
 
         System.out.println("Равны ли таски исходного и восстановленного менеджеров?");
-        System.out.println("Ответ: " + fileBackedTaskManager.tasks.equals(fileBackedTaskManager1.tasks)+System.lineSeparator());
+        System.out.println("Ответ: " + fileBackedTaskManager.tasks.equals(fileBackedTaskManager1.tasks) + System.lineSeparator());
         System.out.println("Равны ли эпики исходного и восстановленного менеджеров?");
-        System.out.println("Ответ: " + fileBackedTaskManager.epics.equals(fileBackedTaskManager1.epics)+System.lineSeparator());
+        System.out.println("Ответ: " + fileBackedTaskManager.epics.equals(fileBackedTaskManager1.epics) + System.lineSeparator());
         System.out.println("Равны ли сабтаски исходного и восстановленного менеджеров? ");
-        System.out.println("Ответ: " + fileBackedTaskManager.subtasks.equals(fileBackedTaskManager1.subtasks)+System.lineSeparator());
+        System.out.println("Ответ: " + fileBackedTaskManager.subtasks.equals(fileBackedTaskManager1.subtasks) + System.lineSeparator());
     }
 
     private final Path path;
