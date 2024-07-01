@@ -222,18 +222,19 @@ class InMemoryTaskManagerTest {
 
     @Test
     void shouldNotChangeTaskInHistory() {
+        TaskManager taskManager = Managers.getDefault();
         Task task1 = new Task("Task1", "Test task1", NEW);
         taskManager.createTask(task1);
 
         taskManager.getTaskById(task1.getId());
 
-        Status statusBeforeUpdate = taskManager.getHistoryManager().getHistory().get(task1.getId() - 1).getStatus();
+        Status statusBeforeUpdate = taskManager.getHistoryManager().getHistory().get(0).getStatus();
 
         Task task2 = new Task("Task2", "Test task2", IN_PROGRESS);
         task2.setId(task1.getId());
         taskManager.updateTask(task2);
 
-        Status statusAfterUpdate = taskManager.getHistoryManager().getHistory().get(task1.getId() - 1).getStatus();
+        Status statusAfterUpdate = taskManager.getHistoryManager().getHistory().get(0).getStatus();
 
         assertEquals(statusBeforeUpdate, statusAfterUpdate, "historyManager не сохраняет предыдущую историю задачи");
     }
