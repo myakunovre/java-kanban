@@ -13,6 +13,8 @@ import java.nio.file.Paths;
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
 
+
+
     public static void main(String[] args) throws IOException {
         Path path = Paths.get("resources", "save.csv");
         if (!Files.exists(path)) {
@@ -45,6 +47,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     private final Path path;
+    private static final String TASK = "TASK";
+    private static final String EPIC = "EPIC";
+    private static final String SUBTASK = "SUBTASK";
+    private static final String delimiter = ",";
+    private static final String COUNT = "count";
 
     public FileBackedTaskManager(Path path) {
         this.path = path;
@@ -63,7 +70,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                 for (Subtask subtask : subtasks.values()) {
                     fileWriter.write(subtaskToString(subtask) + "\n");
                 }
-                fileWriter.write(count + "," + "count");
+                fileWriter.write(count + delimiter + COUNT);
             }
         } catch (IOException e) {
             throw new ManagerSaveException("Произошла ошибка во время записи файла.");
@@ -76,28 +83,28 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
             while (fileReader.ready()) {
                 String string = fileReader.readLine();
-                String[] split = string.split(",");
+                String[] split = string.split(delimiter);
 
                 switch (split[1]) {
-                    case "TASK" -> {
+                    case TASK -> {
                         Task task = fileBackedTaskManager.fromString(string);
                         if (task != null) {
                             fileBackedTaskManager.tasks.put(task.getId(), task);
                         }
                     }
-                    case "EPIC" -> {
+                    case EPIC -> {
                         Epic epic = (Epic) fileBackedTaskManager.fromString(string);
                         if (epic != null) {
                             fileBackedTaskManager.epics.put(epic.getId(), epic);
                         }
                     }
-                    case "SUBTASK" -> {
+                    case SUBTASK -> {
                         Subtask subtask = (Subtask) fileBackedTaskManager.fromString(string);
                         if (subtask != null) {
                             fileBackedTaskManager.subtasks.put(subtask.getId(), subtask);
                         }
                     }
-                    case "count" -> {
+                    case COUNT -> {
                         count = Integer.parseInt(split[0]);
                     }
                 }
@@ -107,31 +114,31 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     private String taskToString(Task task) {
-        return task.getId() + ",TASK," +
-                task.getName() + ',' +
-                task.getStatus() + ',' +
+        return task.getId() + delimiter + TASK + delimiter +
+                task.getName() + delimiter +
+                task.getStatus() + delimiter +
                 task.getDescription();
     }
 
     private String epicToString(Epic epic) {
-        return epic.getId() + ",EPIC," +
-                epic.getName() + ',' +
-                epic.getStatus() + ',' +
+        return epic.getId() + delimiter + EPIC + delimiter +
+                epic.getName() + delimiter +
+                epic.getStatus() + delimiter +
                 epic.getDescription();
     }
 
     private String subtaskToString(Subtask subtask) {
-        return subtask.getId() + ",SUBTASK," +
-                subtask.getName() + ',' +
-                subtask.getStatus() + ',' +
-                subtask.getDescription() + ',' +
+        return subtask.getId() + delimiter + SUBTASK + delimiter +
+                subtask.getName() + delimiter +
+                subtask.getStatus() + delimiter +
+                subtask.getDescription() + delimiter +
                 subtask.getEpicId();
     }
 
     private Task fromString(String value) {
-        String[] split = value.split(",");
+        String[] split = value.split(delimiter);
         switch (split[1]) {
-            case "TASK" -> {
+            case TASK -> {
                 int id = Integer.parseInt(split[0]);
                 String name = split[2];
                 Status status = convertStringToStatus(split[3]);
@@ -141,7 +148,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                 task.setId(id);
                 return task;
             }
-            case "EPIC" -> {
+            case EPIC -> {
                 int id = Integer.parseInt(split[0]);
                 String name = split[2];
                 Status status = convertStringToStatus(split[3]);
@@ -151,7 +158,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                 epic.setId(id);
                 return epic;
             }
-            case "SUBTASK" -> {
+            case SUBTASK -> {
                 int id = Integer.parseInt(split[0]);
                 String name = split[2];
                 Status status = convertStringToStatus(split[3]);
