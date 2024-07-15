@@ -11,8 +11,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.Files;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
@@ -72,9 +71,12 @@ class FileBackedTaskManagerTest extends TaskManagerTest<TaskManager> {
     @Test
     public void testException() {
         assertThrows(ManagerSaveException.class, () -> {
-            Path path = Paths.get("C:\\test.csv");
-            FileBackedTaskManager fileBackedTaskManager = new FileBackedTaskManager(path);
-            fileBackedTaskManager.save();
-        }, "Запись в несуществующий файл должна приводить к исключению");
+            File testFile = Files.createTempFile("test", "test").toFile();
+            testFile.setReadOnly();
+            FileBackedTaskManager fileBackedTaskManager = new FileBackedTaskManager(testFile.toPath());
+
+            Task task1 = new Task("Task1", "description Task1", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(5));
+            fileBackedTaskManager.createTask(task1);
+        }, "Запись в файл, доступный только для чтения, должна приводить к исключению");
     }
 }
