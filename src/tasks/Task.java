@@ -53,9 +53,11 @@ public class Task {
     public LocalDateTime getEndTime() {
         return startTime.plus(duration);
     }
+
     public LocalDateTime getStartTime() {
         return startTime;
     }
+
     public Duration getDuration() {
         return duration;
     }
