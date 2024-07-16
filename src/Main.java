@@ -5,6 +5,9 @@ import tasks.Status;
 import tasks.Subtask;
 import tasks.Task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -13,17 +16,17 @@ public class Main {
 
         TaskManager taskManager = Managers.getDefault();
 
-        Task task1 = new Task("Завтрак", "Приготовить завтрак дома", Status.NEW);
+        Task task1 = new Task("Завтрак", "Приготовить завтрак дома", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(5));
         taskManager.createTask(task1);
-        Task task2 = new Task("Обед", "Сходить в ресторан", Status.NEW);
+        Task task2 = new Task("Обед", "Сходить в ресторан", Status.NEW, LocalDateTime.now().plusMinutes(5), Duration.ofMinutes(5));
         taskManager.createTask(task2);
 
         Epic epic = new Epic("Ремонт", "Сделать ремонт в гостиной", Status.NEW);
         taskManager.createEpic(epic);
 
-        Subtask subtask1 = new Subtask("Проект", "Сделать проект", Status.NEW, epic.getId());
+        Subtask subtask1 = new Subtask("Проект", "Сделать проект", Status.NEW, epic.getId(), LocalDateTime.now().plusMinutes(10), Duration.ofMinutes(5));
         taskManager.createSubtask(subtask1);
-        Subtask subtask2 = new Subtask("Материалы", "Закупить материалы", Status.NEW, epic.getId());
+        Subtask subtask2 = new Subtask("Материалы", "Закупить материалы", Status.NEW, epic.getId(), LocalDateTime.now().plusMinutes(15), Duration.ofMinutes(5));
         taskManager.createSubtask(subtask2);
 
         System.out.println("Дергаем созданные задачи в порядке id 1...5" + System.lineSeparator());

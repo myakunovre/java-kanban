@@ -45,5 +45,9 @@ public class TaskLinkedList<T> {
             last = prevNode;
             prevNode.next = null;
         }
+        if (node.prev == null && node.next == null) {
+            first = null;
+            last = null;
+        }
     }
 }

@@ -11,10 +11,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FileBackedTaskManagerTest {
+class FileBackedTaskManagerTest extends TaskManagerTest<TaskManager> {
 
     @Test
     void shouldSaveEmptyFileWhenHaveNotTasks() throws IOException {
@@ -43,19 +46,19 @@ class FileBackedTaskManagerTest {
         File file = File.createTempFile("prefix", "suffix");
         FileBackedTaskManager fileBackedTaskManager1 = FileBackedTaskManager.loadFromFile(file);
 
-        Task task1 = new Task("Task1", "description Task1", Status.NEW);
+        Task task1 = new Task("Task1", "description Task1", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(5));
         fileBackedTaskManager1.createTask(task1);
-        Task task2 = new Task("Task1", "description Task2", Status.NEW);
+        Task task2 = new Task("Task1", "description Task2", Status.NEW, LocalDateTime.now().plusMinutes(5), Duration.ofMinutes(5));
         fileBackedTaskManager1.createTask(task2);
-        Task task3 = new Task("Task3", "description Task3", Status.NEW);
+        Task task3 = new Task("Task3", "description Task3", Status.NEW, LocalDateTime.now().plusMinutes(10), Duration.ofMinutes(5));
         fileBackedTaskManager1.createTask(task3);
 
         Epic epic = new Epic("Epic", "description Epic", Status.NEW);
         fileBackedTaskManager1.createEpic(epic);
 
-        Subtask subtask1 = new Subtask("Subtask1", "description Subtask1", Status.NEW, epic.getId());
+        Subtask subtask1 = new Subtask("Subtask1", "description Subtask1", Status.NEW, epic.getId(), LocalDateTime.now().plusMinutes(15), Duration.ofMinutes(5));
         fileBackedTaskManager1.createSubtask(subtask1);
-        Subtask subtask2 = new Subtask("Subtask2", "description Subtask2", Status.NEW, epic.getId());
+        Subtask subtask2 = new Subtask("Subtask2", "description Subtask2", Status.NEW, epic.getId(), LocalDateTime.now().plusMinutes(20), Duration.ofMinutes(5));
         fileBackedTaskManager1.createSubtask(subtask2);
 
         FileBackedTaskManager fileBackedTaskManager2 = FileBackedTaskManager.loadFromFile(file);
@@ -63,5 +66,17 @@ class FileBackedTaskManagerTest {
         assertEquals(fileBackedTaskManager1.tasks, fileBackedTaskManager2.tasks, "Таски различаются");
         assertEquals(fileBackedTaskManager1.epics, fileBackedTaskManager2.epics, "Эпики различаются");
         assertEquals(fileBackedTaskManager1.subtasks, fileBackedTaskManager2.subtasks, "Сабтаски различаются");
+    }
+
+    @Test
+    public void testException() {
+        assertThrows(ManagerSaveException.class, () -> {
+            File testFile = Files.createTempFile("test", "test").toFile();
+            testFile.setReadOnly();
+            FileBackedTaskManager fileBackedTaskManager = new FileBackedTaskManager(testFile.toPath());
+
+            Task task1 = new Task("Task1", "description Task1", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(5));
+            fileBackedTaskManager.createTask(task1);
+        }, "Запись в файл, доступный только для чтения, должна приводить к исключению");
     }
 }

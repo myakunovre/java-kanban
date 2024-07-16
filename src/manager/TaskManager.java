@@ -34,7 +34,6 @@ public interface TaskManager {
 
     void createSubtask(Subtask subtask);
 
-    //    Обновление задач (для каждого типа задач)
     void updateTask(tasks.Task task);
 
     void updateEpic(Epic epic);
@@ -49,4 +48,5 @@ public interface TaskManager {
 
     List<Subtask> getSubtasksForEpic(int epicId);
 
+    boolean isTasksCrossInTime(Task task1, Task task2);
 }
