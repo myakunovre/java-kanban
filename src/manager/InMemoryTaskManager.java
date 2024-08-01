@@ -4,6 +4,7 @@ import tasks.Epic;
 import tasks.Status;
 import tasks.Subtask;
 import tasks.Task;
+import exceptions.NotFoundException;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -79,7 +80,6 @@ public class InMemoryTaskManager implements TaskManager {
         for (Task task : tasks.values()) {
             sortedTasks.remove(task);
         }
-
         tasks.clear();
     }
 
@@ -121,6 +121,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getTaskById(int id) {
         Task task = tasks.get(id);
+        if (task == null) {
+            throw new NotFoundException("Не найдена задача с id = " + id);
+        }
         historyManager.add(task);
         return task;
     }
@@ -128,6 +131,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Epic getEpicById(int id) {
         Epic epic = epics.get(id);
+        if (epic == null) {
+            throw new NotFoundException("Не найден эпик с id = " + id);
+        }
         historyManager.add(epic);
         return epic;
     }
@@ -135,6 +141,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Subtask getSubtaskById(int id) {
         Subtask subtask = subtasks.get(id);
+        if (subtask == null) {
+            throw new NotFoundException("Не найдена подзадача с id = " + id);
+        }
         historyManager.add(subtask);
         return subtask;
     }
@@ -145,10 +154,9 @@ public class InMemoryTaskManager implements TaskManager {
         task.setId(id);
         tasks.put(id, task);
 
-        boolean isNotCrossInTime = getPrioritizedTasks().stream()
-                .allMatch(anyTask -> isTasksCrossInTime(anyTask, task));
+//        boolean isNotCrossInTime = isNotCrossInTime(task);
 
-        if (isNotCrossInTime && task.getStartTime() != null) {
+        if (isNotCrossInTime(task) && task.getStartTime() != null) {
             sortedTasks.add(task);
         }
     }
@@ -169,10 +177,9 @@ public class InMemoryTaskManager implements TaskManager {
         subtask.setId(id);
         subtasks.put(id, subtask);
 
-        boolean isNotCrossInTime = getPrioritizedTasks().stream()
-                .allMatch(anyTask -> isTasksCrossInTime(anyTask, subtask));
+//        boolean isNotCrossInTime = isNotCrossInTime(subtask);
 
-        if (isNotCrossInTime && subtask.getStartTime() != null) {
+        if (isNotCrossInTime(subtask) && subtask.getStartTime() != null) {
             sortedTasks.add(subtask);
         }
 
@@ -185,14 +192,15 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task) {
-        tasks.put(task.getId(), task);
-        sortedTasks.remove(task);
+//        tasks.put(task.getId(), task);
+//        sortedTasks.remove(tasks.get(task.getId()));
 
-        boolean isNotCrossInTime = getPrioritizedTasks().stream()
-                .allMatch(anyTask -> isTasksCrossInTime(anyTask, task));
+//        boolean isNotCrossInTime = isNotCrossInTime(task);
 
-        if (isNotCrossInTime && task.getStartTime() != null) {
+        if (isNotCrossInTime(task) && task.getStartTime() != null) {
+            sortedTasks.remove(tasks.get(task.getId()));
             sortedTasks.add(task);
+            tasks.put(task.getId(), task);
         }
     }
 
@@ -206,14 +214,16 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateSubtask(Subtask subtask) {
-        subtasks.put(subtask.getId(), subtask);
-        sortedTasks.remove(subtask);
+//        subtasks.put(subtask.getId(), subtask);
+//        sortedTasks.remove(subtask);
 
-        boolean isNotCrossInTime = getPrioritizedTasks().stream()
-                .allMatch(anyTask -> isTasksCrossInTime(anyTask, subtask));
+//        boolean isNotCrossInTime = isNotCrossInTime(subtask);
 
-        if (isNotCrossInTime && subtask.getStartTime() != null) {
+        if (isNotCrossInTime(subtask) && subtask.getStartTime() != null) {
+//            sortedTasks.add(subtask);
+            sortedTasks.remove(subtasks.get(subtask.getId()));
             sortedTasks.add(subtask);
+            subtasks.put(subtask.getId(), subtask);
         }
 
         updateEpicStatus(epics.get(subtask.getEpicId()));
@@ -232,7 +242,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeEpicById(int id) {
         Epic epic = epics.get(id);
         for (Integer subtaskId : epic.subtasksId) {
-            sortedTasks.remove(subtasks.get(id));
+            sortedTasks.remove(subtasks.get(subtaskId));
             subtasks.remove(subtaskId);
             historyManager.remove(subtaskId);
         }
@@ -243,6 +253,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeSubtaskById(int id) {
+//        if ()
         int epicId = subtasks.get(id).getEpicId();
         epics.get(epicId).subtasksId.remove((Integer) id);
         updateEpicStatus(epics.get(epicId));
@@ -272,7 +283,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public void updateEpicStatus(Epic epic) {
-        if (epic.subtasksId.isEmpty() || isAllSubtasksOfEpicHaveStatusNew(epic)) {
+//        if (epic.subtasksId.isEmpty() || isAllSubtasksOfEpicHaveStatusNew(epic)) {
+        if (epic.subtasksId == null || isAllSubtasksOfEpicHaveStatusNew(epic)) {
             epic.setStatus(Status.NEW);
             return;
         }
@@ -310,6 +322,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void updateEpicDuration(Epic epic) {
+        if (epic.subtasksId == null)  return;
         long sumDuration = epic.subtasksId.stream()
                 .mapToLong(id -> subtasks.get(id).getDuration().getSeconds())
                 .sum();
@@ -324,5 +337,21 @@ public class InMemoryTaskManager implements TaskManager {
         LocalDateTime endTime2 = task2.getEndTime();
 
         return !endTime1.isBefore(startTime2) && !endTime2.isBefore(startTime1);
+    }
+
+    @Override
+    public boolean isNotCrossInTime(Task task) {
+        return getPrioritizedTasks().stream()
+                .noneMatch(anyTask -> isTasksCrossInTime(anyTask, task));
+    }
+
+    @Override
+    public Status convertStringToStatus(String string) {
+        return switch (string) {
+            case "NEW" -> Status.NEW;
+            case "IN_PROGRESS" -> Status.IN_PROGRESS;
+            case "DONE" -> Status.DONE;
+            default -> null;
+        };
     }
 }
