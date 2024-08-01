@@ -154,8 +154,6 @@ public class InMemoryTaskManager implements TaskManager {
         task.setId(id);
         tasks.put(id, task);
 
-//        boolean isNotCrossInTime = isNotCrossInTime(task);
-
         if (isNotCrossInTime(task) && task.getStartTime() != null) {
             sortedTasks.add(task);
         }
@@ -214,13 +212,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateSubtask(Subtask subtask) {
-//        subtasks.put(subtask.getId(), subtask);
-//        sortedTasks.remove(subtask);
-
-//        boolean isNotCrossInTime = isNotCrossInTime(subtask);
 
         if (isNotCrossInTime(subtask) && subtask.getStartTime() != null) {
-//            sortedTasks.add(subtask);
             sortedTasks.remove(subtasks.get(subtask.getId()));
             sortedTasks.add(subtask);
             subtasks.put(subtask.getId(), subtask);
@@ -253,7 +246,6 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeSubtaskById(int id) {
-//        if ()
         int epicId = subtasks.get(id).getEpicId();
         epics.get(epicId).subtasksId.remove((Integer) id);
         updateEpicStatus(epics.get(epicId));
@@ -283,7 +275,6 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public void updateEpicStatus(Epic epic) {
-//        if (epic.subtasksId.isEmpty() || isAllSubtasksOfEpicHaveStatusNew(epic)) {
         if (epic.subtasksId == null || isAllSubtasksOfEpicHaveStatusNew(epic)) {
             epic.setStatus(Status.NEW);
             return;
