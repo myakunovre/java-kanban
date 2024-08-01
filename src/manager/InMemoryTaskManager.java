@@ -120,30 +120,22 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTaskById(int id) {
-        Task task = tasks.get(id);
-        if (task == null) {
-            throw new NotFoundException("Не найдена задача с id = " + id);
-        }
+        Task task = Optional.ofNullable(tasks.get(id)).orElseThrow(() -> new NotFoundException("Не найдена задача с id = " + id));
         historyManager.add(task);
         return task;
     }
 
     @Override
     public Epic getEpicById(int id) {
-        Epic epic = epics.get(id);
-        if (epic == null) {
-            throw new NotFoundException("Не найден эпик с id = " + id);
-        }
+        Epic epic = Optional.ofNullable(epics.get(id)).orElseThrow(() -> new NotFoundException("Не найден эпик с id = " + id));
         historyManager.add(epic);
         return epic;
     }
 
     @Override
     public Subtask getSubtaskById(int id) {
-        Subtask subtask = subtasks.get(id);
-        if (subtask == null) {
-            throw new NotFoundException("Не найдена подзадача с id = " + id);
-        }
+        Subtask subtask = Optional.ofNullable(subtasks.get(id)).orElseThrow(() -> new NotFoundException("Не найдена " +
+                "подзадача с id = " + id));
         historyManager.add(subtask);
         return subtask;
     }
@@ -175,8 +167,6 @@ public class InMemoryTaskManager implements TaskManager {
         subtask.setId(id);
         subtasks.put(id, subtask);
 
-//        boolean isNotCrossInTime = isNotCrossInTime(subtask);
-
         if (isNotCrossInTime(subtask) && subtask.getStartTime() != null) {
             sortedTasks.add(subtask);
         }
@@ -190,10 +180,6 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task) {
-//        tasks.put(task.getId(), task);
-//        sortedTasks.remove(tasks.get(task.getId()));
-
-//        boolean isNotCrossInTime = isNotCrossInTime(task);
 
         if (isNotCrossInTime(task) && task.getStartTime() != null) {
             sortedTasks.remove(tasks.get(task.getId()));
