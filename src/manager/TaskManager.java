@@ -1,6 +1,7 @@
 package manager;
 
 import tasks.Epic;
+import tasks.Status;
 import tasks.Subtask;
 import tasks.Task;
 
@@ -49,4 +50,10 @@ public interface TaskManager {
     List<Subtask> getSubtasksForEpic(int epicId);
 
     boolean isTasksCrossInTime(Task task1, Task task2);
+
+    boolean isNotCrossInTime(Task task);
+
+    List<Task> getPrioritizedTasks();
+
+    Status convertStringToStatus(String string);
 }

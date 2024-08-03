@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Epic extends Task {
-    public final ArrayList<Integer> subtasksId;
+    public ArrayList<Integer> subtasksId;
     public LocalDateTime endTime;
 
     public Epic(String name, String description, Status status) {
@@ -23,6 +23,10 @@ public class Epic extends Task {
 
     public void setDuration(Duration duration) {
         this.duration = duration;
+    }
+
+    public void setSubtasksId(ArrayList<Integer> subtasksId) {
+        this.subtasksId = subtasksId;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package manager;
 
+import exceptions.ManagerSaveException;
 import tasks.Epic;
 import tasks.Status;
 import tasks.Subtask;
@@ -12,7 +13,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
 
@@ -53,8 +53,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     private static final String SUBTASK = "SUBTASK";
     private static final String delimiter = ",";
     private static final String COUNT = "count";
-
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy|hh-mm-ss");
 
     public FileBackedTaskManager(Path path) {
         this.path = path;
@@ -208,14 +206,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         }
     }
 
-    private static Status convertStringToStatus(String string) {
-        return switch (string) {
-            case "NEW" -> Status.NEW;
-            case "IN_PROGRESS" -> Status.IN_PROGRESS;
-            case "DONE" -> Status.DONE;
-            default -> null;
-        };
-    }
+
 
     @Override
     public void removeTasks() {
